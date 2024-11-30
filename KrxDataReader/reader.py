@@ -64,6 +64,19 @@ class KrxDataReader:
             '개인', '외국인','기타외국인', '전체'
             ]
         return kospi_sell_trade
+    
+    def get_kospi_foreign_hold_df(self, start_date, end_date):
+        date_ranges = self._split_date_ranges(start_date, end_date, 2)
+        kospi_foreign_holds = []
+        for _start_date, _end_date in date_ranges:
+            kospi_foreign_holds.extend(self.fetcher.fetch_kospi_foreign_hold(_start_date, _end_date))
+            time.sleep(.5)
+        kospi_foreign_hold = pd.DataFrame(kospi_foreign_holds)
+        kospi_foreign_hold.columns = [
+            '날짜','전체_시가총액','외국인_시가총액','외국인_시가총액_비율','전체_주식수','외국인_주식수','외국인_주식수_비율'
+            ]
+        return kospi_foreign_hold
+        
 
     def get_kosdaq_sector_df(self):
         """ 코스닥 업종 정보 """
@@ -102,6 +115,18 @@ class KrxDataReader:
             ]
         return kosdaq_sell_trade
 
+    def get_kosdaq_foreign_hold_df(self, start_date, end_date):
+        date_ranges = self._split_date_ranges(start_date, end_date, 2)
+        kosdaq_foreign_holds = []
+        for _start_date, _end_date in date_ranges:
+            kosdaq_foreign_holds.extend(self.fetcher.fetch_kosdaq_foreign_hold(_start_date, _end_date))
+            time.sleep(.5)
+        kosdaq_foreign_hold = pd.DataFrame(kosdaq_foreign_holds)
+        kosdaq_foreign_hold.columns = [
+            '날짜','전체_시가총액','외국인_시가총액','외국인_시가총액_비율','전체_주식수','외국인_주식수','외국인_주식수_비율'
+            ]
+        return kosdaq_foreign_hold
+
     def get_stock_buy_trade_df(self,stock_code, start_date, end_date):
         """ 종목 매수자 기관별 """
         lcode = self.scode_lcode_mapper[stock_code]
@@ -116,7 +141,7 @@ class KrxDataReader:
             '개인', '외국인','기타외국인', '전체'
             ]
         return stock_buy_trade
-
+    
     def get_stock_sell_trade_df(self,stock_code, start_date, end_date):
         """ 종목 매도자 기관별 """
         lcode = self.scode_lcode_mapper[stock_code]
@@ -131,6 +156,20 @@ class KrxDataReader:
             '개인', '외국인','기타외국인', '전체'
             ]
         return stock_sell_trade
+    
+    def get_stock_foreign_hold_df(self, stock_code, start_date, end_date):
+        lcode = self.scode_lcode_mapper[stock_code]
+        date_ranges = self._split_date_ranges(start_date, end_date, 2)
+        stock_foreign_holds = []
+        for _start_date, _end_date in date_ranges:
+            stock_foreign_holds.extend(self.fetcher.fetch_stock_foreign_hold(lcode, _start_date, _end_date))
+            time.sleep(.5)
+        stock_foreign_hold = pd.DataFrame(stock_foreign_holds)
+        stock_foreign_hold = stock_foreign_hold.drop(columns=['FLUC_TP_CD'])
+        stock_foreign_hold.columns = [
+            '날짜','종가','대비','등락률','전체_주식수','외국인_주식수','외국인_주식수_비율','외국인_한도수량','외국인_한도소진율'
+            ]
+        return stock_foreign_hold
 
     def _get_base_df(self):
         """ 기본 정보 """
